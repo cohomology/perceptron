@@ -1,6 +1,9 @@
 module Perceptron (
+  TrainingData(..),
   dotProduct, 
-  predictPerceptron
+  predictPerceptron,
+  trainPerceptron,
+  checkPrediction
 ) where    
 
 import Data.List (foldl')
@@ -21,8 +24,8 @@ predictPerceptron :: (Num a, Ord a) =>    [a]  -- ^ Weight vector
                                        -> [a]  -- ^ Value vector 
                                        -> a    -- ^ Result (0 or 1)
 predictPerceptron weights values 
-  | dotProduct weights values >= 0 = 1
-  | otherwise                      = 0
+  | dotProduct weights (1 : values) >= 0 = 1
+  | otherwise                            = 0
 
 -- |Check if a single training datum satisfies the prediction
 checkSinglePrediction :: (Num a, Ord a) =>    [a]             -- ^ Weights
@@ -45,7 +48,7 @@ updateWeights :: (Num a, Ord a) =>    a               -- ^ learning rate
 updateWeights trainingRate weights input = updatedWeights
   where values = trainingValues input 
         activation = fromIntegral $ trainingActivation input 
-        prediction  = predictPerceptron weights (1 : values) 
+        prediction  = predictPerceptron weights values 
         correctionFactor = trainingRate * (activation - prediction)
         correctionVector = correctionFactor : map (correctionFactor *) values
         updatedWeights = zipWith (+) weights correctionVector
